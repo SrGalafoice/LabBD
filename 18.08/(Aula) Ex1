@@ -61,22 +61,56 @@ CREATE TABLE nao_alunos_inscritos (
     CONSTRAINT FK_nai_palestra FOREIGN KEY (codigo_palestra)
         REFERENCES palestra(codigo_palestra)
 );
-CREATE VIEW Lista
+CREATE VIEW Lista_P1
 AS
 SELECT a.ra AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
 p.carga_horaria AS Carga_Horaria,p.data AS Data FROM aluno a INNER JOIN alunos_inscritos ai ON a.ra = ai.ra
 INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
 pnt.codigo_palestrante = p.codigo_palestrante
+WHERE p.codigo_palestra = 1
 UNION
 SELECT a.rg + '-'+ a.orgao_exp AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
 p.carga_horaria AS Carga_Horaria,p.data AS Data FROM nao_alunos a INNER JOIN nao_alunos_inscritos ai ON a.rg = ai.rg AND a.orgao_exp = ai.orgao_exp
 INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
 pnt.codigo_palestrante = p.codigo_palestrante 
+WHERE p.codigo_palestra = 1
 
+CREATE VIEW Lista_P3
+AS
+SELECT a.ra AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM aluno a INNER JOIN alunos_inscritos ai ON a.ra = ai.ra
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante
+WHERE p.codigo_palestra = 3
+UNION
+SELECT a.rg + '-'+ a.orgao_exp AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM nao_alunos a INNER JOIN nao_alunos_inscritos ai ON a.rg = ai.rg AND a.orgao_exp = ai.orgao_exp
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante 
+WHERE p.codigo_palestra = 3
 
-select * from Lista
+CREATE VIEW Lista_P2
+AS
+SELECT a.ra AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM aluno a INNER JOIN alunos_inscritos ai ON a.ra = ai.ra
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante
+WHERE p.codigo_palestra = 2
+UNION
+SELECT a.rg + '-'+ a.orgao_exp AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM nao_alunos a INNER JOIN nao_alunos_inscritos ai ON a.rg = ai.rg AND a.orgao_exp = ai.orgao_exp
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante 
+WHERE p.codigo_palestra = 2
+
+select * from Lista_P1
 ORDER BY Nome_Pessoa
 
+select * from Lista_P2
+ORDER BY Nome_Pessoa
+
+select * from Lista_P3
+ORDER BY Nome_Pessoa
 
 INSERT INTO alunos_inscritos (ra, codigo_palestra) VALUES
 ('2023001', 1),
