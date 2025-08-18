@@ -1,0 +1,162 @@
+CREATE DATABASE dsd
+GO
+USE dsd
+GO
+
+CREATE TABLE curso (
+    codigo_curso INT PRIMARY KEY,
+    nome VARCHAR(70) NOT NULL,
+    sigla VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE aluno (
+    ra CHAR(7) PRIMARY KEY,
+    nome VARCHAR(250) NOT NULL,
+    codigo_curso INT NOT NULL,
+  FOREIGN KEY (codigo_curso) REFERENCES curso(codigo_curso)
+ );
+
+CREATE TABLE palestrante (
+    codigo_palestrante INT PRIMARY KEY,
+    nome VARCHAR(250) NOT NULL,
+    empresa VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE palestra (
+    codigo_palestra INT PRIMARY KEY,
+    titulo VARCHAR(2000) NOT NULL,
+    carga_horaria INT NOT NULL,
+    data DATETIME NOT NULL,
+    codigo_palestrante INT NOT NULL,
+    FOREIGN KEY (codigo_palestrante) REFERENCES palestrante(codigo_palestrante) 
+);
+
+
+CREATE TABLE alunos_inscritos (
+    ra CHAR(7) NOT NULL,
+    codigo_palestra INT NOT NULL,
+    CONSTRAINT PK_alunos_inscritos PRIMARY KEY (ra, codigo_palestra),
+    CONSTRAINT FK_ai_aluno FOREIGN KEY (ra)
+        REFERENCES aluno(ra),
+    CONSTRAINT FK_ai_palestra FOREIGN KEY (codigo_palestra)
+        REFERENCES palestra(codigo_palestra)
+);
+
+
+CREATE TABLE nao_alunos (
+    rg VARCHAR(9) PRIMARY KEY,
+    orgao_exp CHAR(5) NOT NULL,
+    nome VARCHAR(250) NOT NULL
+);
+
+
+CREATE TABLE nao_alunos_inscritos (
+    rg VARCHAR(9) NOT NULL,
+    orgao_exp CHAR(5) NOT NULL,
+    codigo_palestra INT NOT NULL,
+    CONSTRAINT PK_nao_alunos_inscritos PRIMARY KEY (rg, orgao_exp, codigo_palestra),
+    CONSTRAINT FK_nai_nao_alunos FOREIGN KEY (rg)
+        REFERENCES nao_alunos(rg),
+    CONSTRAINT FK_nai_palestra FOREIGN KEY (codigo_palestra)
+        REFERENCES palestra(codigo_palestra)
+);
+CREATE VIEW Lista
+AS
+SELECT a.ra AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM aluno a INNER JOIN alunos_inscritos ai ON a.ra = ai.ra
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante
+UNION
+SELECT a.rg + '-'+ a.orgao_exp AS Num_Documento,  a.nome AS Nome_Pessoa, p.titulo AS Titulo_Palestra, pnt.nome AS Nome_Palestrante,
+p.carga_horaria AS Carga_Horaria,p.data AS Data FROM nao_alunos a INNER JOIN nao_alunos_inscritos ai ON a.rg = ai.rg AND a.orgao_exp = ai.orgao_exp
+INNER JOIN palestra p ON ai.codigo_palestra = p.codigo_palestra INNER JOIN palestrante pnt ON
+pnt.codigo_palestrante = p.codigo_palestrante 
+
+
+select * from Lista
+ORDER BY Nome_Pessoa
+
+
+INSERT INTO alunos_inscritos (ra, codigo_palestra) VALUES
+('2023001', 1),
+('2023002', 1),
+('2023003', 2),
+('2023004', 3),
+('2023001', 2); -- Maria em 2 palestras
+
+
+
+INSERT INTO nao_alunos_inscritos (rg, orgao_exp, codigo_palestra) VALUES
+('123456789', 'SSPSP', 1),
+('987654321', 'SSPRJ', 2),
+('555666777', 'SSPBA', 3),
+('123456789', 'SSPSP', 3);
+
+DELETE FROM alunos_inscritos;
+DELETE FROM nao_alunos_inscritos;
+DELETE FROM aluno;
+DELETE FROM nao_alunos;
+DELETE FROM palestra;
+DELETE FROM palestrante;
+DELETE FROM curso;
+
+SELECT * FROM palestra;
+
+
+INSERT INTO curso (codigo_curso, nome, sigla) VALUES
+(1, 'Análise e Desenvolvimento de Sistemas', 'ADS'),
+(2, 'Gestão Empresarial', 'GE'),
+(3, 'Logística', 'LOG');
+
+
+INSERT INTO aluno (ra, nome, codigo_curso) VALUES
+('2023001', 'Maria Silva', 1),
+('2023002', 'João Santos', 1),
+('2023003', 'Ana Oliveira', 2),
+('2023004', 'Pedro Costa', 3);
+
+INSERT INTO palestrante (codigo_palestrante, nome, empresa) VALUES
+(1, 'Carlos Pereira', 'Microsoft'),
+(2, 'Fernanda Lima', 'Google'),
+(3, 'Rafael Souza', 'Amazon');
+
+
+INSERT INTO palestra (codigo_palestra, titulo, carga_horaria, data, codigo_palestrante) VALUES
+(1, 'Inteligência Artificial no Mercado de Trabalho', 4, '20250910 19:00:00', 1),
+(2, 'Gestão de Projetos Ágeis', 3, '20250912 19:00:00', 2),
+(3, 'Logística 4.0 e Automação', 2, '20250915 19:00:00', 3);
+
+
+INSERT INTO alunos_inscritos (ra, codigo_palestra) VALUES
+('2023001', 1),
+('2023002', 1),
+('2023003', 2),
+('2023004', 3),
+('2023001', 2); -- Maria em 2 palestras
+
+
+INSERT INTO nao_alunos (rg, orgao_exp, nome) VALUES
+('123456789', 'SSPSP', 'Lucas Martins'),
+('987654321', 'SSPRJ', 'Juliana Costa'),
+('555666777', 'SSPBA', 'Marcelo Souza');
+
+
+INSERT INTO nao_alunos_inscritos (rg, orgao_exp, codigo_palestra) VALUES
+('123456789', 'SSPSP', 1),
+('987654321', 'SSPRJ', 2),
+('555666777', 'SSPBA', 3),
+('123456789', 'SSPSP', 3);
+
+
+/*
+O domínio trata de palestras em uma Faculdade. Palestrantes apresentarão palestras para alunos e não
+alunos. Para o caso de alunos, seus dados já são referenciáveis em outro sistema, portanto, basta saber
+seu RA, no entanto, para não alunos, para prover certificados, é importante saber seu RG e Órgão
+Expedidor. O problema está no momento de gerar a lista de presença. A lista de presença deverá vir de
+uma consulta que retorna (Num_Documento, Nome_Pessoa, Titulo_Palestra, Nome_Palestrante,
+Carga_Horária, Data(dd/mm/aaaa) e Hora (HH:mm)). A lista deverá ser uma só, por palestra (A condição
+da consulta é o código da palestra) e contemplar alunos e não alunos (O Num_Documento se referencia
+ao RA para alunos e RG + Orgao_Exp para não alunos) e estar ordenada pelo Nome_Pessoa.
+Fazer uma view de select que forneça a saída solicitada
+\*
