@@ -1,0 +1,143 @@
+CREATE DATABASE Ex03
+GO
+
+USE Ex03
+GO
+
+CREATE TABLE altA(
+	numero INT NOT NULL
+)
+GO
+--a) Dado um número inteiro. Calcule e mostre o seu fatorial. (Não usar entrada superior a 12)
+DECLARE @num INT,
+		@res INT
+SET @num = (SELECT numero FROM altA)
+IF (@num < 13)
+BEGIN
+SET @res = 1
+WHILE (@num > 0)
+BEGIN
+	SET @res = @res * @num 
+	SET @num -= 1
+	PRINT @res
+END
+	PRINT @res
+	DELETE altA
+END
+ELSE
+BEGIN 
+	PRINT 'Numero maior que 12, tem que ser menor.'
+END
+
+INSERT INTO altA VALUES(10) -- teste normal
+INSERT INTO altA VALUES(12) -- teste limite
+INSERT INTO altA VALUES(13) -- teste else
+
+-- b) Dados A, B, e C de uma equação do 2o grau da fórmula AX2+BX+C=0. Verifique e mostre a
+--existência de raízes reais e se caso exista, calcule e mostre. Caso não existam, exibir mensagem.
+
+CREATE TABLE equacao(
+a INT NOT NULL,
+b INT NOT NULL,
+C INT NOT NULL
+)
+GO
+
+DECLARE @a INT,
+@b INT, 
+@c INT,
+@delta FLOAT,
+@x1 FLOAT,
+@x2 FLOAT
+SET @a = (SELECT a FROM equacao)
+SET @b = (SELECT b FROM equacao)
+SET @c = (SELECT c FROM equacao)
+
+SET @delta = (@b * @b) - 4 * @a * @c
+IF(@delta > -1)
+BEGIN 
+		SET @x1 = (-(@b) + SQRT(25) / (2 * @a))
+		SET @x2 = (-(@b) - SQRT(25) / (2 * @a))
+	PRINT 'Essa equação possui raizes reais, são elas: ' + CAST(@x1 AS VARCHAR(100)) + ' e ' + CAST(@x2 AS VARCHAR(100))
+END
+ELSE
+BEGIN
+PRINT 'Não possui raizes reais'
+END
+DELETE equacao
+
+INSERT INTO equacao VALUES (1, -2, 1) --Possui raízes reais
+INSERT INTO equacao VALUES (1, 1, 1) --Não possui
+
+-- c) Calcule e mostre quantos anos serão necessários para que Ana seja maior que Maria sabendo
+--que Ana tem 1,10 m e cresce 3 cm ao ano e Maria tem 1,5 m e cresce 2 cm ao ano.
+
+DECLARE @Ana FLOAT,
+@Maria FLOAT,
+@anos INT
+SET @Ana = 1.10
+SET @Maria = 1.5
+SET @anos = 0
+WHILE (@Ana < @Maria)
+BEGIN
+	SET @Ana += 0.03
+	SET @Maria += 0.02
+	SET @anos += 1
+END
+PRINT 'Ana terá a mesma altura que Maria em: ' + CAST(@anos AS VARCHAR(100)) + ' anos'
+
+--d) Seja a seguinte série: 1, 4, 4, 2, 5, 5, 3, 6, 6, 4, 7, 7, ...
+-- Escreva uma aplicação que a escreva N termos
+CREATE TABLE numero(
+n INT NOT NULL
+)
+GO
+DECLARE @print VARCHAR(255),
+@maozinha VARCHAR(255),
+@res INT
+SET @res = 2
+SET @print = '1,4,4,'
+IF ((SELECT n FROM numero) > 0)
+BEGIN
+WHILE (@res < ((SELECT n FROM numero) + 1))
+BEGIN
+	SET @maozinha = CAST(@res AS VARCHAR(100)) + ',' + CAST((@res + 3) AS VARCHAR(100)) + ',' + CAST((@res + 3) AS VARCHAR(100)) + ','
+	SET @print += @maozinha
+	SET @res += 1
+END
+PRINT SUBSTRING(@print, 1, LEN(@print) - 1)
+DELETE numero
+END
+ELSE
+BEGIN 
+PRINT 'O valor de N tem que ser maior que 0'
+END
+INSERT INTO numero VALUES(0) --Erro
+INSERT INTO numero VALUES(1) --Mostra o primeiro print
+INSERT INTO numero VALUES(4) --Teste
+
+/*
+e) Considerando a tabela abaixo, gere uma database, a tabela e crie um algoritmo para inserir
+uma massa de dados, com 50 registros, para fins de teste, com as regras estabelecidas (Não
+usar constraints na criação da tabela)
+*/
+
+CREATE TABLE Produto(
+Codigo INT NOT NULL PRIMARY KEY,
+Nome VARCHAR(30),
+Valor DECIMAL(7,2),
+Vencimento DATE
+)
+GO
+
+DECLARE @id INT,
+@nome VARCHAR(30),
+@valor DECIMAL(7,2),
+@vencimento DATE
+	SET @id = 50001 + (SELECT COUNT(*) FROM Produto)
+	SET @nome = 'Produto ' + CAST((SELECT COUNT(*) FROM Produto) + 1 AS VARCHAR(100))
+	SET @valor = CAST(RAND() * 90 + 10 AS DECIMAL(7,2))
+	SET @vencimento = DATEADD(DAY, CAST(RAND() *  4 + 3 AS INT), GETDATE())
+	INSERT INTO Produto VALUES(@id, @nome, @valor, @vencimento)
+
+SELECT * FROM Produto
