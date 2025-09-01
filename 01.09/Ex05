@@ -1,0 +1,63 @@
+--Não Finalizei :(
+--https://drive.google.com/file/d/1B8ehS__ML6FQ0lTv24ww2uYOff1FCpRY/view
+
+CREATE DATABASE academia
+GO
+
+USE academia
+
+CREATE TABLE Aluno(
+Codigo_Aluno INT NOT NULL PRIMARY KEY,
+Nome VARCHAR(255)
+)
+
+CREATE TABLE Atividade(
+Codigo INT NOT NULL PRIMARY KEY,
+Descricao VARCHAR(255),
+IMC DECIMAL(7,2)
+)
+
+CREATE TABLE Atividadesaluno(
+Codigo_aluno INT NOT NULL,
+Altura DECIMAL(7,2),
+Peso DECIMAL(7,2),
+IMC DECIMAL(7,2),
+Atividade INT NOT NULL 
+PRIMARY KEY (Codigo_Aluno,Atividade)
+FOREIGN KEY (Codigo_Aluno) REFERENCES Aluno(Codigo_Aluno),
+FOREIGN KEY (Atividade) REFERENCES Atividade(Codigo)
+)
+
+INSERT INTO Atividade (codigo, descricao, imc)
+VALUES
+(1, 'Corrida + Step', 18.5),
+(2, 'Biceps + Costas + Pernas', 24.9),
+(3, 'Esteira + Biceps + Costas + Pernas', 29.9),
+(4, 'Bicicleta + Biceps + Costas + Pernas', 34.9),
+(5, 'Esteira + Bicicleta', 39.9)
+
+
+SELECT TOP 1 Codigo FROM Atividade
+CREATE PROCEDURE sp_IMC (@altura DECIMAL(7,2), @peso DECIMAL(7,2), @IMC DECIMAL(7,2), @atividade INT OUTPUT)
+AS
+BEGIN
+		SET @IMC = @peso / (@altura * @altura)
+
+		SET @atividade = CASE
+		WHEN @IMC < 18.5 THEN 1  
+		WHEN @IMC BETWEEN 18.5 AND 24.9 THEN 2
+		WHEN @IMC BETWEEN 24.9 AND 29.9 THEN 3
+		WHEN @IMC BETWEEN 29.9 AND 34.9 THEN 4
+		WHEN @IMC BETWEEN 34.9 AND 39.9 THEN 5
+	END
+END
+DROP PROCEDURE sp_IMC
+
+
+
+CREATE PROCEDURE sp_alunoatividades (@cod INT, @nome VARCHAR(255), @altura DECIMAL(7,2), @peso DECIMAL(7,2))
+AS
+BEGIN 
+	DECLARE @atividade INT, 
+	EXEC sp_IMC @altura, @peso, NULL, @atividade OUTPUT
+END
