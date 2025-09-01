@@ -1,0 +1,220 @@
+--Esqueci de avisar no ultimo exercício, mas eu não usaria uma coluna de uma table para esses algoritmos. Criei apenas para ficar mais facil de visualizar os testes, e caso fosse utilizar uma table realmente, provavelmente eu utilizaria um SELECT com TOP 1 o WHERE
+CREATE DATABASE Ex04
+Go
+
+USE Ex04
+GO
+
+--Fazer um algoritmo que leia 1 número e mostre se são múltiplos de 2,3,5 ou nenhum deles
+CREATE TABLE Divisao(
+num INT NOT NULL
+)
+Go
+
+DECLARE @n INT
+SET @n = (SELECT num FROM Divisao)
+IF (@n = 0)
+BEGIN
+	PRINT 'Número é 0'
+END
+ELSE
+BEGIN
+IF (@n % 2 = 0)
+BEGIN
+	PRINT'Número múltiplo de 2'
+END
+ELSE
+BEGIN
+	IF (@n % 3 = 0)
+	BEGIN
+	PRINT 'Número múltiplo de 3'
+	END
+	ELSE
+	BEGIN
+		IF (@n % 5 = 0)
+		BEGIN
+		PRINT 'Número mútliplo de 5'
+		END
+		ELSE
+		BEGIN 
+		PRINT 'Número tem o final 1, 7 ou 9'
+		END
+	END
+END
+END
+DELETE Divisao
+INSERT INTO Divisao VALUES(0)
+INSERT INTO Divisao VALUES(1)
+INSERT INTO Divisao VALUES(2)
+INSERT INTO Divisao VALUES(3)
+INSERT INTO Divisao VALUES(5)
+INSERT INTO Divisao VALUES(7)
+INSERT INTO Divisao VALUES(9)
+INSERT INTO Divisao VALUES(11)
+
+--Fazer um algoritmo que leia 3 números e mostre o maior e o menor
+CREATE TABLE maiormenor(
+num INT NOT NULL,
+num2 INT NOT NULL,
+num3 INT NOT NULL
+)
+Go
+
+DECLARE @n1 INT,
+@n2 INT, 
+@n3 INT
+
+SET @n1 = (SELECT num FROM maiormenor)
+SET @n2 = (SELECT num2 FROM maiormenor)
+SET @n3 = (SELECT num3 FROM maiormenor)
+
+DECLARE @maior INT = 
+    CASE 
+        WHEN @n1 >= @n2 AND @n1 >= @n3 THEN @n1
+        WHEN @n2 >= @n1 AND @n2 >= @n3 THEN @n2
+        ELSE @n3
+    END
+DECLARE @menor INT = 
+   CASE 
+        WHEN @n1 <= @n2 AND @n1 <= @n3 THEN @n1
+        WHEN @n2 <= @n1 AND @n2 <= @n3 THEN @n2
+        ELSE @n3
+   END
+   PRINT 'O maior numero é = ' + CAST(@maior AS VARCHAR)
+   PRINT 'O menor numero é = ' + CAST(@menor AS VARCHAR)
+   DELETE maiormenor
+
+   INSERT INTO maiormenor VALUES(1,2,3)
+
+ /* c) Fazer um algoritmo que calcule os 15 primeiros termos da série
+1,1,2,3,5,8,13,21,...
+E calcule a soma dos 15 termos
+   */
+DECLARE @print VARCHAR(255),
+@calc INT,
+@SomaTotal INT,
+@i INT,
+@prox INT,
+@ant INT
+
+SET @calc = 1
+SET @print = '1,'
+SET @i = 0
+SET @SomaTotal = 0
+SET @ant = 0
+
+WHILE (@i < 14)
+BEGIN
+SET @SomaTotal += @calc
+SET @print += CAST(@calc AS VARCHAR) + ',' 
+
+SET @prox = @ant + @calc
+
+SET @ant = @calc
+SET @calc = @prox
+SET @i += 1
+END
+
+SET @print = LEFT(@print, LEN(@print) - 1)
+--1,1,2,
+PRINT '15 primeiros termos da serie: ' + @print
+PRINT 'Soma dos 15 primeiros termos: ' + CAST(@SomaTotal AS VARCHAR)
+
+ --Fazer um algoritmo que separa uma frase, colocando todas as letras em maiúsculo e em
+--minúsculo (Usar funções UPPER e LOWER)
+CREATE TABLE upperlower(
+frase VARCHAR(255) NOT NULL
+)
+GO
+
+DECLARE @f VARCHAR(255) = (SELECT frase FROM upperlower)
+
+DECLARE @maiuscula VARCHAR(255) = UPPER(@f)
+
+
+DECLARE @minuscula VARCHAR(255) = LOWER(@f)
+
+PRINT 'Maiúscula = ' + @maiuscula
+PRINT 'Minúscula = ' + @minuscula
+DELETE upperlower
+
+INSERT INTO upperlower VALUES ('Frase legal')
+
+--e) Fazer um algoritmo que inverta uma palavra (Usar a função SUBSTRING)
+CREATE TABLE inverter(
+palavra VARCHAR(255) NOT NULL
+)
+GO
+
+DECLARE @p VARCHAR(255) = (SELECT palavra FROM inverter),
+@i INT = 0,
+@print VARCHAR(255) = ''
+
+WHILE (@i < LEN(@p))
+BEGIN
+SET @print += SUBSTRING(@p,LEN(@p) - @i, 1)
+SET @i += 1
+END
+
+PRINT @print
+DELETE inverter
+
+INSERT INTO inverter VALUES ('Garfield') 
+
+--f) Considerando a tabela abaixo, gere uma massa de dados, com 100 registros, para fins de teste
+--com as regras estabelecidas (Não usar constraints na criação da tabela)
+
+CREATE TABLE Computador (
+    ID INT PRIMARY KEY,
+    Marca VARCHAR(40),
+    QtdRAM INT,
+    TipoHD VARCHAR(10),
+    QtdHD INT,
+    FreqCPU DECIMAL(7,2)
+)
+
+DECLARE @id INT,
+@Marca VARCHAR(30),
+@RAM INT,
+@THD VARCHAR(10),
+@QHD INT,
+@FreqCPU DECIMAL(7,2),
+@j INT = 0
+
+DECLARE @Valores TABLE (Tipo VARCHAR(10), Qtd INT);
+
+INSERT INTO @Valores
+VALUES 
+('HDD', 500), ('HDD', 1000), ('HDD', 2000),
+('SSD', 128), ('SSD', 256), ('SSD', 512), ('M2 NVME', 0)
+
+WHILE (@j < 100)
+BEGIN
+	SET @id = 10001 + (SELECT COUNT(*) FROM Computador)
+
+	SET @Marca = 'Marca ' + CAST((SELECT COUNT(*) FROM Computador) + 1 AS VARCHAR(100))
+
+SELECT TOP 1 @RAM = Valor
+FROM (VALUES (2), (4), (8), (16)) AS RAM(Valor)
+ORDER BY NEWID();
+
+    SET @THD = 
+        CASE (@ID % 3)
+            WHEN 0 THEN 'HDD'
+            WHEN 1 THEN 'SSD'
+            ELSE 'M2 NVME'
+        END
+
+	SELECT TOP 1 @QHD = Qtd FROM @Valores
+WHERE Tipo = @THD
+ORDER BY NEWID()
+
+	SET @FreqCPU =  CAST(RAND() * 1.5 + 1.70 AS DECIMAL(7,2))
+
+	INSERT INTO Computador VALUES(@id, @Marca, @RAM, @THD, @QHD, @FreqCPU)
+
+	SET @j += 1
+	END
+	
+	SELECT * FROM Computador
+	--DELETE Computador
