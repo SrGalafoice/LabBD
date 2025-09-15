@@ -1,0 +1,98 @@
+CREATE DATABASE ex06
+
+USE ex06
+GO
+
+
+CREATE TABLE Produto (
+    Codigo INT PRIMARY KEY,
+    Nome VARCHAR(100),
+    Valor DECIMAL(10, 2)
+);
+
+CREATE TABLE ENTRADA (
+    Codigo_Transacao INT PRIMARY KEY,
+    Codigo_Produto INT,
+    Quantidade INT,
+    Valor_Total DECIMAL(10, 2),
+    FOREIGN KEY (Codigo_Produto) REFERENCES Produto(Codigo)
+);
+
+CREATE TABLE SAIDA (
+    Codigo_Transacao INT PRIMARY KEY,
+    Codigo_Produto INT,
+    Quantidade INT,
+    Valor_Total DECIMAL(10, 2),
+    FOREIGN KEY (Codigo_Produto) REFERENCES Produto(Codigo)
+);
+
+SELECT * FROM Produto
+SELECT * FROM ENTRADA
+SELECT * FROM SAIDA
+
+INSERT INTO Produto (Codigo, Nome, Valor) VALUES (1, 'Carro Maneiro', 5000.00);
+INSERT INTO Produto (Codigo, Nome, Valor) VALUES (2, 'Geladeira 4 portas', 2000.00);
+INSERT INTO Produto (Codigo, Nome, Valor) VALUES (3, 'Colgate 2L', 10.00);
+
+CREATE PROCEDURE sp_Transacao
+@Tipo BIT, --1 = Entrada, 0 = Saida
+@Codigo_Transacao INT,
+@Codigo_Produto INT,
+@Quantidade INT
+AS
+BEGIN
+
+DECLARE @Valor DECIMAL(10, 2);
+DECLARE @Valor_Total DECIMAL(10, 2);
+
+    SELECT @Valor = Valor
+    FROM Produto
+    WHERE Codigo = @Codigo_Produto;
+
+    IF @Valor IS NULL
+    BEGIN
+        RAISERROR('Produto não encontrado.', 16, 1);
+        RETURN;
+    END
+    
+    SET @Valor_Total = @Valor * @Quantidade;
+
+    IF @Tipo = 1
+    BEGIN
+        INSERT INTO ENTRADA (Codigo_Transacao, Codigo_Produto, Quantidade, Valor_Total)
+        VALUES (@Codigo_Transacao, @Codigo_Produto, @Quantidade, @Valor_Total);
+    END
+    ELSE IF @Tipo = 0
+    BEGIN
+        INSERT INTO SAIDA (Codigo_Transacao, Codigo_Produto, Quantidade, Valor_Total)
+        VALUES (@Codigo_Transacao, @Codigo_Produto, @Quantidade, @Valor_Total);
+    END
+END
+
+
+EXEC sp_Transacao 1, 1, 1, 10; 
+EXEC sp_Transacao 0, 2, 2, 5; 
+
+SELECT * FROM ENTRADA;
+SELECT * FROM SAIDA;
+
+
+
+
+
+
+
+
+
+
+
+
+Considere a tabela Produto com os seguintes atributos:
+Produto (Codigo | Nome | Valor)
+Considere a tabela ENTRADA e a tabela SAÍDA com os seguintes atributos:
+(Codigo_Transacao | Codigo_Produto | Quantidade | Valor_Total)
+Cada produto que a empresa compra, entra na tabela ENTRADA. Cada produto que a empresa vende,
+entra na tabela SAIDA.
+Criar uma procedure que receba um código (‘e’ para ENTRADA e ‘s’ para SAIDA), criar uma exceção de
+erro para código inválido, receba o codigo_transacao, codigo_produto e a quantidade e preencha a
+tabela correta, com o valor_total de cada transação de cada produto.
